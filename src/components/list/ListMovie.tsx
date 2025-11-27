@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -6,14 +5,9 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { useGetMediaQuery } from "./apiSlice";
 
-interface MediaItem {
-  id: number; // Unique identifier for each product
-  title: string; // Product name
-  overview: string; // Movie overview
-  vote_average: number; // Rating of the movie
-  image: string; // URL or path to the product image
-}
+
 
 interface ListMovieProps {
   source: 'movie' | 'tv';
@@ -22,46 +16,12 @@ interface ListMovieProps {
 }
 
 export default function ListMovie({ source, sorting }: ListMovieProps) {
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    setMedia([]);
-
-    const fetchMedia = async () => {
-      const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-      
-      if (!apiKey) {
-        console.error("TMDB API Key not found.");
-        setLoading(true);
-        return;
-      }
-      try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/${source}/${sorting}?api_key=${apiKey}&language=en-US&page=1`,
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const formattedMedia = data.results.map((item: any) => ({
-          id: item.id,
-          title: item.title || item.name,
-          overview: item.overview,
-          vote_average: item.vote_average,
-          image: `https://image.tmdb.org/t/p/w200${item.poster_path}`,
-        }));
-        setMedia(formattedMedia);
-      } catch (error) {
-        console.error(`Failed to fetch ${source}:`, error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMedia();
-  }, [source, sorting]);
+  const {
+    data: media,
+    isLoading,
+    isError,
+    error,
+  } = useGetMediaQuery({ source, sorting });
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 sm:px-6">
@@ -79,7 +39,6 @@ export default function ListMovie({ source, sorting }: ListMovieProps) {
       </div>
       <div className="w-full overflow-x-auto">
         <Table>
-          {/* Table Header */}
           <TableHeader className="border-gray-100  border-y">
             <TableRow>
               <TableCell
@@ -102,16 +61,21 @@ export default function ListMovie({ source, sorting }: ListMovieProps) {
               </TableCell>
             </TableRow>
           </TableHeader>
-          {/* Table Body */}
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {loading ? (
+            {isLoading ? (
               <TableRow>
-                <TableCell className="py-4 text-center">
+                <TableCell className="py-4 text-center text-gray-500">
                   Loading...
                 </TableCell>
               </TableRow>
+            ) : isError ? (
+              <TableRow>
+                <TableCell className="py-4 text-center text-red-500">
+                  Error fetching data: {error.toString()}
+                </TableCell>
+              </TableRow>
             ) : (
-              media.map((item) => (
+              media?.map((item) => (
                 <TableRow key={item.id} className="">
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
