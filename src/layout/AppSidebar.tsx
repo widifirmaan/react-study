@@ -1,22 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
-// Assume these icons are imported from an icon library
 import {
-  BoxCubeIcon,
-  CalenderIcon,
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
-  PageIcon,
-  PieChartIcon,
-  PlugInIcon,
-  TableIcon,
-  UserCircleIcon,
+  CalenderIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -27,85 +18,40 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-  },
-  {
     icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
+    name: "Movie",
     subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
+      { name: "Popular", path: "/", pro: false },
+      { name: "Terbaru", path: "/movie/new", pro: false },
+      { name: "Top Rated", path: "/movie/hits", pro: false }
+
+    ],
+  },
+  {
+    icon: <GridIcon />,
+    name: "TV Show",
+    subItems: [
+      { name: "Popular", path: "/tv", pro: false },
+      { name: "Top Rated", path: "/tv/hits", pro: false }
+
     ],
   },
 ];
 
-const othersItems: NavItem[] = [
-  {
-    icon: <PieChartIcon />,
-    name: "Charts",
-    subItems: [
-      { name: "Line Chart", path: "/line-chart", pro: false },
-      { name: "Bar Chart", path: "/bar-chart", pro: false },
-    ],
-  },
-  {
-    icon: <BoxCubeIcon />,
-    name: "UI Elements",
-    subItems: [
-      { name: "Alerts", path: "/alerts", pro: false },
-      { name: "Avatar", path: "/avatars", pro: false },
-      { name: "Badge", path: "/badge", pro: false },
-      { name: "Buttons", path: "/buttons", pro: false },
-      { name: "Images", path: "/images", pro: false },
-      { name: "Videos", path: "/videos", pro: false },
-    ],
-  },
-  {
-    icon: <PlugInIcon />,
-    name: "Authentication",
-    subItems: [
-      { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
-    ],
-  },
-];
+
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: "main";
     index: number;
   } | null>(null);
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname]
@@ -113,14 +59,14 @@ const AppSidebar: React.FC = () => {
 
   useEffect(() => {
     let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+    ["main"].forEach((menuType) => {
+      const items = menuType === "main" ? navItems : [];
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: menuType as "main" | "others",
+                type: menuType as "main",
                 index,
               });
               submenuMatched = true;
@@ -147,7 +93,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index: number, menuType: "main") => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -160,7 +106,7 @@ const AppSidebar: React.FC = () => {
     });
   };
 
-  const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
+  const renderMenuItems = (items: NavItem[], menuType: "main") => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
         <li key={nav.name}>
@@ -285,7 +231,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white  text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
@@ -308,14 +254,7 @@ const AppSidebar: React.FC = () => {
             <>
               <img
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="https://files.readme.io/29c6fee-blue_short.svg"
                 alt="Logo"
                 width={150}
                 height={40}
@@ -323,7 +262,7 @@ const AppSidebar: React.FC = () => {
             </>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+              src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg"
               alt="Logo"
               width={32}
               height={32}
@@ -358,17 +297,10 @@ const AppSidebar: React.FC = () => {
                     : "justify-start"
                 }`}
               >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
               </h2>
-              {renderMenuItems(othersItems, "others")}
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );
